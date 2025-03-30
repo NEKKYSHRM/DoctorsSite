@@ -49,7 +49,7 @@ export async function registerUser(req) {
         message: "User created successfully",
         user: {
           _id: savedUser._id,
-          username: savedUser.username,
+          username: savedUser.userName,
           email: savedUser.email,
         },
       },
@@ -61,70 +61,66 @@ export async function registerUser(req) {
   }
 }
 
+export async function loginUser(req) {
+  try {
+    //db connection
+    await dbConnect();
 
-// const generateAccessAndRefreshToken = async (userId) => {
-//   try {
-//     const user = await User.findById(userId);
-//     const accessToken = user.generateAccessToken();
-//     const refreshToken = user.generateRefreshToken();
+    //parse body
+    const {email, password} = await req.json();
 
-//     user.refreshToken = refreshToken;
-//     await user.save({ validateBeforeSave: true });
-//     return { accessToken, refreshToken };
-//   } catch (error) {
-//     throw new ApiError(500, "Something went wrong while generating tokens");
-//   }
-// };
+    //check all fields
+    if(!email?.trim() || !password?.trim()) {
+      return NextResponse.json(
+        {error: "All fields are required"},
+        {status: 400}
+      )
+    }
+    
+    //check if user exists
+    const user = await User.findOne({email})
+    if(!user) {
+      return NextResponse.json(
+        {error: "User not found"},
+        {status: 400}
+      );
+    };
 
-// const refreshAccessToken = AsyncHandler(async (req, res) => {
-//   return dbConnect()
-//     .then(async () => {
-//       const incomingRefreshToken =
-//         req.body.refreshToken || req.cookies.refreshToken;
+    //validate password
+    const validPassword = await bcrypt.compare(password, user.password);
+    if(!validPassword) {
+      return NextResponse.json(
+        {error: "Invalid password"},
+        {status: 400}
+      );
+    };
 
-//       if (!incomingRefreshToken) {
-//         throw new ApiError(400, "Refresh token is required");
-//       }
+    //Create token data
+    const tokenData = {
+      id: user._id,
+      userName: user.userName,
+      email: user.email,
+    };
 
-//       const decodedToken = jwt.verify(
-//         incomingRefreshToken,
-//         process.env.REFRESH_TOKEN_SECRET
-//       );
-//       const user = await User.findById(decodedToken?._id);
+    //create token
+    const token = jwt.sign(tokenData, process.env.SECRET_KEY, {
+      expiresIn: "1d"
+    });
 
-//       if (!user) {
-//         throw new ApiError(404, "User not found");
-//       }
-//       if (incomingRefreshToken !== user?.refreshToken) {
-//         throw new ApiError(401, "Invalid refresh token");
-//       }
+    const response = NextResponse.json({
+      message: "Login successfully",
+      success: true
+    })
 
-//       const options = {
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === "production",
-//       };
+    response.headers.set(
+      "Set-Cookie",
+      `token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict`
+    )
 
-//       const { accessToken, refreshToken: newRefreshToken } =
-//         await generateAccessAndRefreshToken(user._id);
+    return response;
 
-//       return res
-//         .status(200)
-//         .cookie("accessToken", accessToken, options)
-//         .cookie("refreshToken", newRefreshToken, options)
-//         .json(
-//           new ApiResponse(200, "Access token refreshed successfully", {
-//             accessToken,
-//             refreshToken: newRefreshToken,
-//           })
-//         );
-//     })
-//     .catch((error) => {
-//       throw new ApiError(
-//         500,
-//         "Something went wrong while refreshing token",
-//         "error:" + error
-//       );
-//     });
-// });
-
-export { refreshAccessToken };
+  } catch (error) {
+    console.log("Database connection error:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

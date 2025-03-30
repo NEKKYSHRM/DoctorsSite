@@ -2,8 +2,16 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
+
+  const router = useRouter();
+
+  function nav() {
+    router.push("/login")
+  }
+
   return (
     <div className="w-full bg-blue-50 flex py-2 px-4 lg:py-4 lg:px-12 xl:px-20 sm:px-6 items-center justify-between">
       <div className="font-bold text-blue-700 md:text-2xl">Logo</div>
@@ -30,7 +38,7 @@ export default function Header() {
             </Link>
           </li>
         </ul>
-        <button className="bg-blue-700 hover:bg-blue-500 text-white text-[9px] sm:text-xs lg:text-base px-2 py-1 lg:px-5 md:px-3 cursor-pointer rounded-sm">
+        <button onClick={nav} className="bg-blue-700 hover:bg-blue-500 text-white text-[9px] sm:text-xs lg:text-base px-2 py-1 lg:px-5 md:px-3 cursor-pointer rounded-sm">
           Login
         </button>
         
