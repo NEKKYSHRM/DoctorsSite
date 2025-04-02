@@ -12,7 +12,7 @@ export default function page() {
   const router = useRouter();
   const [user, setUser] = React.useState(null);
   const [isPatient, setIsPatient] = React.useState(false);
-  const [isLoggedIn, setIsLoggedIn] = React.useState(null)
+  const [isLoggedIn, setIsLoggedIn] = React.useState(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -30,12 +30,19 @@ export default function page() {
     fetchUserProfile();
   }, []);
 
-  const logout = (e) => {
-    e.preventDefault();
+  const logout = async () => {
+    try {
+      await axios.get("/api/logout");
+      toast.success("Logged out successfull");
+      router.push("/login");
+    } catch (error) {
+      console.error(error.message);
+      toast.error(error.message);
+    }
   };
 
-  const update = (e) => {
-    e.preventDefault();
+  const update = () => {
+    router.push("/updateProfile");
   };
 
   return (
@@ -52,28 +59,34 @@ export default function page() {
           />
         </div>
         {/* User Details */}
-        <h1 className="text-2xl font-bold text-green-700">{"Your Name"}</h1>
+        <h1 className="text-2xl font-bold text-green-700">{user?.fullName || "Your Name"}</h1>
         <p className="text-gray-600">@{user?.userName || "username"}</p>
         <p className="text-gray-500 mt-2">{user?.email || "Your Email"}</p>
         <p className="text-gray-500">{user?.phone || "Your Phone Number"}</p>
         <p className="text-gray-500">
           {user?.location
-            ? `${user.location}, ${user.pinCode}`
+            ? `${user.location}`
             : "Location not provided"}
         </p>
         <p className="text-gray-700 font-semibold mt-3">
           Role: <span className="text-green-600">{user?.role}</span>
         </p>
         <div className="flex gap-2 justify-center items-center mt-2">
-          <button onClick={logout} className="bg-red-600 py-1 px-4 text-white">
-            Logout
-          </button>
-          <button
-            onClick={update}
-            className="bg-green-600 py-1 px-4 text-white"
-          >
-            Update
-          </button>
+          {/* Logout Button */}
+          <div className="flex gap-4 justify-center items-center">
+            <button
+              onClick={logout}
+              className="bg-red-500 w-28 hover:bg-red-700 text-white px-4 py-2 mt-4 rounded-md transition"
+            >
+              Logout
+            </button>
+            <button
+              onClick={update}
+              className="bg-blue-500 w-28 hover:bg-blue-700 text-white px-4 py-2 mt-4 rounded-md transition"
+            >
+              Update
+            </button>
+          </div>
         </div>
       </div>
     </div>

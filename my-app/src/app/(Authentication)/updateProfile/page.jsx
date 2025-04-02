@@ -1,15 +1,49 @@
 "use client";
 
-import React from 'react'
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
+import toast from "react-hot-toast";
 
 export default function () {
-    const [loading, setLoading] = React.useState(false);
-    const [user, setUser] = React.useState({})
+  const router = useRouter();
+  const [loading, setLoading] = React.useState(false);
+  const [user, setUser] = React.useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    location: "",
+  });
 
-    const submitForm = (e) => {
-        e.preventDefault();
-        console.log("Form submitted");
-    } 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get("/api/userData");
+        setUser((prevUser) => ({
+          ...prevUser,
+          ...response.data.data,
+        }));
+      } catch (error) {
+        console.log("Error fetching profile: ", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const submitForm = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("/api/updateProfile", user);
+      console.log(response);      
+      router.push("/profile");
+    } catch (error) {
+      console.log("Signup Error: ", error);
+      toast.error(error.message);
+    } finally {
+      setLoading(true);
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
@@ -17,23 +51,6 @@ export default function () {
           {loading ? "Loading..." : "Update Profile"}
         </h1>
         <form onSubmit={submitForm} className="space-y-4">
-          <div>
-            <label
-              htmlFor="userName"
-              className="block text-sm font-medium text-gray-700"
-            >
-              User Name
-            </label>
-            <input
-              type="text"
-              name="userName"
-              id="name"
-            //   value={user.userName}
-            //   onChange={(e) => setUser({ ...user, userName: e.target.value })}
-              required
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
           <div>
             <label
               htmlFor="fullName"
@@ -44,9 +61,10 @@ export default function () {
             <input
               type="text"
               name="userName"
+              placeholder={user.fullName || ""}
               id="name"
-            //   value={user.userName}
-            //   onChange={(e) => setUser({ ...user, userName: e.target.value })}
+              value={user.fullName}
+              onChange={(e) => setUser({ ...user, fullName: e.target.value })}
               required
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
@@ -62,8 +80,9 @@ export default function () {
               type="string"
               name="phone"
               id="phone"
-            //   value={user.userName}
-            //   onChange={(e) => setUser({ ...user, userName: e.target.value })}
+              placeholder={user.phone || ""}
+              value={user.phone}
+              onChange={(e) => setUser({ ...user, phone: e.target.value })}
               required
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
@@ -76,11 +95,12 @@ export default function () {
               Location
             </label>
             <input
-              type="string"
-            //   name="location"
-            //   id="location"
-            //   value={user.userName}
-            //   onChange={(e) => setUser({ ...user, userName: e.target.value })}
+              type="text"
+              name="location"
+              id="location"
+              value={user.location}
+              placeholder={user.location || ""}
+              onChange={(e) => setUser({ ...user, location: e.target.value })}
               required
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
@@ -96,29 +116,13 @@ export default function () {
               type="email"
               name="email"
               id="email"
-            //   value={user.email}
-            //   onChange={(e) => setUser({ ...user, email: e.target.value })}
+              placeholder={user.email || ""}
               required
+              readOnly
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-            //   value={user.password}
-            //   onChange={(e) => setUser({ ...user, password: e.target.value })}
-              required
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
+
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
@@ -128,5 +132,5 @@ export default function () {
         </form>
       </div>
     </div>
-  )
+  );
 }
