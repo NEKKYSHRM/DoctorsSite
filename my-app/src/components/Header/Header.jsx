@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, {useState} from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
+  const [isLoggedIn, setIsLoggedIn] = React.useState(null);
 
   const router = useRouter();
 
@@ -38,9 +39,10 @@ export default function Header() {
             </Link>
           </li>
         </ul>
-        <button onClick={nav} className="bg-blue-700 hover:bg-blue-500 text-white text-[9px] sm:text-xs lg:text-base px-2 py-1 lg:px-5 md:px-3 cursor-pointer rounded-sm">
+        {isLoggedIn ? "Visit Profile" : <button onClick={nav} className="bg-blue-700 hover:bg-blue-500 text-white text-[9px] sm:text-xs lg:text-base px-2 py-1 lg:px-5 md:px-3 cursor-pointer rounded-sm">
           Login
-        </button>
+        </button>}
+        
         
       </div>
     </div>

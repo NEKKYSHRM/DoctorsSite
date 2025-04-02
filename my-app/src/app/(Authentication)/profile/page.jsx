@@ -12,6 +12,7 @@ export default function page() {
   const router = useRouter();
   const [user, setUser] = React.useState(null);
   const [isPatient, setIsPatient] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(null)
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -28,6 +29,14 @@ export default function page() {
 
     fetchUserProfile();
   }, []);
+
+  const logout = (e) => {
+    e.preventDefault();
+  };
+
+  const update = (e) => {
+    e.preventDefault();
+  };
 
   return (
     <div className="w-full flex flex-col items-center justify-center bg-white text-center px-10 py-10">
@@ -55,6 +64,17 @@ export default function page() {
         <p className="text-gray-700 font-semibold mt-3">
           Role: <span className="text-green-600">{user?.role}</span>
         </p>
+        <div className="flex gap-2 justify-center items-center mt-2">
+          <button onClick={logout} className="bg-red-600 py-1 px-4 text-white">
+            Logout
+          </button>
+          <button
+            onClick={update}
+            className="bg-green-600 py-1 px-4 text-white"
+          >
+            Update
+          </button>
+        </div>
       </div>
     </div>
   );

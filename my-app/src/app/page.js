@@ -1,5 +1,5 @@
 import Image from "next/image";
-import hero from "../../public/hero/hero.png";
+import hero from "../../public/hero/hero.jpg";
 import { FaUserDoctor } from "react-icons/fa6";
 import { FaStethoscope } from "react-icons/fa";
 import { BsClipboard2PlusFill } from "react-icons/bs";
@@ -14,7 +14,7 @@ import femaleDoc from "../../public/images/femaleDoc.png"
 
 export default function Home() {
   return (
-    <div className="w-full h-screen flex flex-col relative bg-white">
+    <div className="w-full flex flex-col relative bg-white">
       {/* Hero Section */}
       <section className="w-full relative flex flex-col">
         {/* Hero Image */}
